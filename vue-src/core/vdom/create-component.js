@@ -109,7 +109,7 @@ export function createComponent (
     return
   }
 
-  /*_base存放了Vue,作为基类，可以在里面添加扩展*/
+  /*_base存放了Vue,作为基类，可以在里面添加扩展*/ // context就是实例vm
   const baseCtor = context.$options._base
 
   // plain options object: turn it into a constructor

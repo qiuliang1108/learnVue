@@ -15,8 +15,9 @@ let uid = 0
 /*initMixin就做了一件事情，在Vue的原型上增加_init方法，构造Vue实例的时候会调用这个_init方法来初始化Vue实例*/
 export function initMixin (Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
+    // this就是vm实例
     const vm: Component = this
-    // a uid
+    // 给每个不同的实例 添加一个私有属性_uid 不重复
     vm._uid = uid++
 
     let startTag, endTag
@@ -37,7 +38,9 @@ export function initMixin (Vue: Class<Component>) {
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+      // 将vm实例上的属性挂载到$options上
       vm.$options = mergeOptions(
+        // vm.constructor 就是Vue
         resolveConstructorOptions(vm.constructor),
         options || {},
         vm
@@ -99,6 +102,7 @@ function initInternalComponent (vm: Component, options: InternalComponentOptions
 }
 
 export function resolveConstructorOptions (Ctor: Class<Component>) {
+  // Vue.options
   let options = Ctor.options
   /*如果存在父类的时候*/
   if (Ctor.super) {

@@ -121,6 +121,7 @@ strats.data = function (
 /**
  * Hooks and props are merged as arrays.
  */
+ // 判断父子组件有无对应名字的生命周期勾子函数，然后将其通过concat合并
 function mergeHook (
   parentVal: ?Array<Function>,
   childVal: ?Function | ?Array<Function>
@@ -211,8 +212,11 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
 function checkComponents (options: Object) {
   for (const key in options.components) {
     const lower = key.toLowerCase()
+    // 如果lower有值 isBuiltInTag(lower) 就是false 
+    // config.isReservedTag(lower)判断是否是保留的标签 false
     if (isBuiltInTag(lower) || config.isReservedTag(lower)) {
       warn(
+        // eg: Do not use built-in or reserved HTML elements as component id: section
         'Do not use built-in or reserved HTML elements as component ' +
         'id: ' + key
       )
@@ -220,10 +224,6 @@ function checkComponents (options: Object) {
   }
 }
 
-/**
- * Ensure all props option syntax are normalized into the
- * Object-based format.
- */
  /*确保所有props option序列化成正确的格式*/
 function normalizeProps (options: Object) {
   const props = options.props
@@ -232,6 +232,7 @@ function normalizeProps (options: Object) {
   let i, val, name
   if (Array.isArray(props)) {
     i = props.length
+    // i 为0的时候 会跳出循环
     while (i--) {
       val = props[i]
       if (typeof val === 'string') {
@@ -242,7 +243,7 @@ function normalizeProps (options: Object) {
         warn('props must be strings when using array syntax.')
       }
     }
-  } else if (isPlainObject(props)) {
+  } else if (isPlainObject(props)) { // props 是对象
     for (const key in props) {
       val = props[key]
       /*将原本用-连接的字符串变成驼峰 aaa-bbb-ccc => aaaBbbCcc*/
@@ -252,6 +253,7 @@ function normalizeProps (options: Object) {
         : { type: val }
     }
   }
+  // eg res: {name: {type: String, default: 'Winter'}}
   options.props = res
 }
 
@@ -282,7 +284,7 @@ export function mergeOptions (
   vm?: Component
 ): Object {
   if (process.env.NODE_ENV !== 'production') {
-    /*检查是否是有效的组件名*/
+    /*检查是否是有效的组件名*/ // options => child
     checkComponents(child)
   }
 

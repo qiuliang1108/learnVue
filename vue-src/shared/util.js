@@ -14,41 +14,29 @@ export function isTrue (v: any): boolean %checks {
   return v === true
 }
 
-/**
- * Check if value is primitive
- */
+// 判断变量是否为原始类型
 export function isPrimitive (value: any): boolean %checks {
   return typeof value === 'string' || typeof value === 'number'
 }
 
-/**
- * Quick object check - this is primarily used to tell
- * Objects from primitive values when we know the value
- * is a JSON-compliant type.
- */
+ // 区分对象和原始值
 export function isObject (obj: mixed): boolean %checks {
   return obj !== null && typeof obj === 'object'
 }
 
 const _toString = Object.prototype.toString
 
-/**
- * Strict object type check. Only returns true
- * for plain JavaScript objects.
- */
  /*对对象类型进行严格检查，只有当对象是纯javascript对象的时候返回true*/
 export function isPlainObject (obj: any): boolean {
   return _toString.call(obj) === '[object Object]'
 }
 
+// 判断变量是否为正则对象
 export function isRegExp (v: any): boolean {
   return _toString.call(v) === '[object RegExp]'
 }
 
-/**
- * Convert a value to a string that is actually rendered.
- */
- /*将val转化成字符串*/
+ // 将val转化成字符串并返回 (强类型的封装)
 export function toString (val: any): string {
   return val == null
     ? ''
@@ -86,15 +74,18 @@ map为{
  */
 }
 }
+// str: 'slot,component' expectsLowerCase: true
 export function makeMap (
   str: string,
   expectsLowerCase?: boolean
 ): (key: string) => true | void {
+  // 创建一个没有原型链的 {}
   const map = Object.create(null)
   const list: Array<string> = str.split(',')
   for (let i = 0; i < list.length; i++) {
     map[list[i]] = true
   }
+  // map: {slot: true, component: true}
   return expectsLowerCase
     ? val => map[val.toLowerCase()]
     : val => map[val]
@@ -103,6 +94,7 @@ export function makeMap (
 /**
  * Check if a tag is a built-in tag.
  */
+ // isBuiltInTag('slot') => true isBuiltInTag('component') => true
 export const isBuiltInTag = makeMap('slot,component', true)
 
 /**
@@ -129,7 +121,10 @@ export function hasOwn (obj: Object | Array<*>, key: string): boolean {
  * Create a cached version of a pure function.
  */
  /*根据str得到fn(str)的结果，但是这个结果会被闭包中的cache缓存起来，下一次如果是同样的str则不需要经过fn(str)重新计算，而是直接得到结果*/
+ // 在Vue中，需要转译很多相同的字符串，若每次都重新执行转译，会造成很多不必要的开销
+ // cached这个函数可以读取缓存，如果缓存中没有就存放到缓存中，最后在读。
 export function cached<F: Function> (fn: F): F {
+  // 创建纯函数是为了防止变化，输入不变则输出不变
   const cache = Object.create(null)
   return (function cachedFn (str: string) {
     const hit = cache[str]
@@ -137,18 +132,16 @@ export function cached<F: Function> (fn: F): F {
   }: any)
 }
 
-/**
- * Camelize a hyphen-delimited string.
- */
  /*将原本用-连接的字符串变成驼峰 aaa-bbb-ccc => aaaBbbCcc*/
+ // 正则() 是为了提取匹配的字符串 带()表示分组匹配 \w 匹配字母或数字或下划线或汉字 等价于 '[^A-Za-z0-9_]'
 const camelizeRE = /-(\w)/g
 export const camelize = cached((str: string): string => {
+  // replace 匹配一次 回调就会执行一次 
+  // 匹配到了 就会执行后面的回调函数 
+  // _表示匹配到的字符串内容 c表示匹配到的分组即camelizeRE里面()的内容 用return的值替换
   return str.replace(camelizeRE, (_, c) => c ? c.toUpperCase() : '')
 })
 
-/**
- * Capitalize a string.
- */
  /*首字母转大写*/
 export const capitalize = cached((str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -157,7 +150,7 @@ export const capitalize = cached((str: string): string => {
 /**
  * Hyphenate a camelCase string.
  */
- /*连接一个camelCase字符串。*/
+// 驼峰转连字符 匹配字符串中的大写字母，然后替换掉
 const hyphenateRE = /([^-])([A-Z])/g
 export const hyphenate = cached((str: string): string => {
   return str
@@ -276,9 +269,7 @@ export function looseIndexOf (arr: Array<mixed>, val: mixed): number {
   return -1
 }
 
-/**
- * Ensure a function is called only once.
- */
+// 只调用一次的函数
 export function once (fn: Function): Function {
   let called = false
   return function () {

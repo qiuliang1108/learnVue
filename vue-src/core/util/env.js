@@ -1,16 +1,19 @@
 /* @flow */
 /* globals MutationObserver */
+// 运行环境
 
 import { noop } from 'shared/util'
 import { handleError } from './error'
 
 // can we use __proto__?
-/*判断当前浏览器是否支持__proto__这个非标准属性*/
+/*判断当前浏览器是否支持__proto__这个非标准属性(检查当前环境是否可以使用对象的__proto__属性)*/
 export const hasProto = '__proto__' in {}
 
 // Browser environment sniffing
 export const inBrowser = typeof window !== 'undefined'
+// 获取当前浏览器的 user agent (客户代理 客户端)
 export const UA = inBrowser && window.navigator.userAgent.toLowerCase()
+// IE浏览器判断
 export const isIE = UA && /msie|trident/.test(UA)
 export const isIE9 = UA && UA.indexOf('msie 9.0') > 0
 export const isEdge = UA && UA.indexOf('edge/') > 0
